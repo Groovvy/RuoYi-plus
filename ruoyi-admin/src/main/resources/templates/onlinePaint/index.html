@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('在线作图')" />
+    <style>
+        canvas {
+            border: 1px dashed black;
+        }
+        /*.canvas-container{*/
+        /*    margin: 0 auto;*/
+        /*}*/
+        .layui-colorpicker{
+            height: 38px!important;
+            width: 38px!important;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/jquery.contextMenu.min.css}">
+    <link rel="stylesheet" th:href="@{/css/layui/layui.css}">
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">-->
+    <script>
+        var canvas;
+        //菜单项
+        var contextMenuItems;
+        var updateCanvasState;
+        window.onload = function () {
+            canvas = new fabric.Canvas('canvas',{
+                width:450,
+                height:200,
+                enableRetinaScaling:true
+            });
+
+            // canvas.setDimensions({width:canvas.width*1.25,height:canvas.height*1.25})
+            // canvas.setZoom(1.25)
+            // new fabric.Image.fromURL("img/3.jpg", function(oImg) {
+            //     oImg.set({
+            //         scaleX: canvas.width / oImg.width,
+            //         scaleY: canvas.height / oImg.height,
+            //     });
+            //
+            //     console.log(oImg)
+            //     // canvas.add(oImg)
+            //     canvas.setBackgroundImage(oImg, canvas.renderAll.bind(canvas));
+            // });
+            //
+            //
+            //
+            // new fabric.Image.fromURL("img/4.png", function(oImg) {
+            //     oImg.set({
+            //         left:350,
+            //         top:50,
+            //         preserveObjectStacking:true,
+            //         hoverCursor:'auto',
+            //         hasControls: false, // 编辑框
+            //         selectable: false // 不可选中
+            //     });
+            //      canvas.add(oImg)
+            // });
+
+
+
+            //在canvas上层对象上添加右键事件监听
+            $(".upper-canvas").contextmenu(onContextmenu);
+
+            //初始化右键菜单
+            $.contextMenu({
+                selector: '#contextmenu-output',
+                trigger: 'none',
+                build: function ($trigger, e) {
+                    //构建菜单项build方法在每次右键点击会执行
+                    return {
+                        callback: contextMenuClick,
+                        items: contextMenuItems
+                    };
+                },
+            });
+
+
+            $(".background").click(function () {
+                new fabric.Image.fromURL(this.src, function(img) {
+                    img.set({
+                        scaleX: canvas.width / img.width,
+                        scaleY: canvas.height / img.height,
+                    });
+                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+                });
+            })
+
+
+            $("#download").click(function () {
+                var data = canvas.toDataURL( {
+                  format: 'png',
+                  quality: 1,
+                  enableRetinaScaling: true
+                });  //1表示质量(无损压缩)
+                console.log(data);
+            });
+
+
+            $("canvas").bind('drop',function(e){
+                console.log("drop")
+                console.log(e)
+                let type = e.originalEvent.dataTransfer.getData("type");
+                let fill = e.originalEvent.dataTransfer.getData("fill");
+                let fillColor = "rgba(255,255,255,0)";
+                let color = $("#test-form-input").val();
+                if(fill == "true"){
+                    fillColor = color;
+                }
+                let imgSrc = e.originalEvent.dataTransfer.getData("imgSrc");
+                console.log(type)
+                let offsetX = e.originalEvent.offsetX;
+                let offsetY = e.originalEvent.offsetY;
+
+                switch (type) {
+                    case "img":
+                        new fabric.Image.fromURL(imgSrc, function(img) {
+                            var scaleP = 1
+                            if(img.width > canvas.width || img.height > canvas.height){
+                                scaleP = canvas.width / img.width > canvas.height / img.height ?  canvas.height / img.height : canvas.width / img.width
+                            }
+                            img.set('selectable', true);
+                            img.set('left', offsetX);
+                            img.set('top', offsetY);
+                            img.set({
+                                scaleX: scaleP,
+                                scaleY: scaleP,
+                            });
+                            img.set('objectCaching',false);
+                            img.set('transparentCorners',false);
+                            img.set('cornerStyle','circle');
+                            img.set('cornerSize',8)
+                            canvas.add(img);
+                        });
+                        break;
+                    case "fonts":
+                        let text=new fabric.IText("双击修改内容",{
+                            fill: color,
+                            fontSize: 18,
+                            left: offsetX,
+                            top: offsetY,
+                            objectCaching: false,
+                            transparentCorners: false,
+                            cornerStyle: 'circle',
+                            cornerSize: 8
+                        });
+                        canvas.add(text)
+                        break;
+                    case "triangle":
+                        let triangle = new fabric.Triangle({
+                            top: offsetY,
+                            left: offsetX,
+                            width: Math.sqrt(Math.pow(50, 2) + Math.pow(50 / 2.0, 2)),
+                            height: 50,
+                            stroke: color,
+                            fill: fillColor,
+                            transparentCorners: false,
+                            cornerStyle: 'circle',
+                            cornerSize: 8
+                        });
+                        triangle.set("isFill",fill);
+                        canvas.add(triangle)
+                        break;
+                    case "rectangle":
+                        let rectangle = new fabric.Rect({
+                            top: offsetY,
+                            left: offsetX,
+                            width: 100,
+                            height: 50,
+                            stroke: color,
+                            fill: fillColor,
+                            objectCaching: false,
+                            transparentCorners: false,
+                            cornerStyle: 'circle',
+                            cornerSize: 8
+                        });
+                        rectangle.set("isFill",fill);
+                        canvas.add(rectangle)
+                        break;
+                    case "circle":
+                        let circle = new fabric.Circle({
+                            top : offsetY,
+                            left : offsetX,
+                            radius : 50,
+                            fill : fillColor,
+                            stroke: color,
+                            objectCaching: false,
+                            transparentCorners: false,
+                            cornerStyle: 'circle',
+                            cornerSize: 8
+                        });
+                        circle.set("isFill",fill);
+                        canvas.add(circle)
+                        break;
+
+                }
+
+            })
+
+            $("img").bind('dragstart',function(e){
+                console.log("拖拽开始")
+                console.log(e)
+                var data=e.originalEvent.dataTransfer;
+                data.setData('type',$(this).attr('data-id'));
+                data.setData('fill',$(this).attr('fill'));
+                data.setData('imgSrc',$(this).attr('src'));
+            })
+
+            //撤销
+            var _config = {
+                canvasState: [],
+                currentStateIndex: -1,
+                undoStatus: false,
+                redoStatus: false,
+                undoFinishedStatus: 1,
+                redoFinishedStatus: 1,
+                undoButton: document.getElementById('undo'),
+                redoButton: document.getElementById('redo'),
+            };
+            canvas.on(
+                'object:modified',
+                function() {
+                    updateCanvasState();
+                }
+            );
+
+            canvas.on(
+                'object:added',
+                function() {
+                    updateCanvasState();
+                }
+            );
+
+            canvas.on(
+                'object:removed',
+                function() {
+                    updateCanvasState();
+                }
+            );
+
+            updateCanvasState = function() {
+                debugger
+                if ((_config.undoStatus == false && _config.redoStatus == false)) {
+                    var jsonData = canvas.toJSON();
+                    var canvasAsJson = JSON.stringify(jsonData);
+                    if (_config.currentStateIndex < _config.canvasState.length - 1) {
+                        var indexToBeInserted = _config.currentStateIndex + 1;
+                        _config.canvasState[indexToBeInserted] = canvasAsJson;
+                        var numberOfElementsToRetain = indexToBeInserted + 1;
+                        _config.canvasState = _config.canvasState.splice(0, numberOfElementsToRetain);
+                    } else {
+                        _config.canvasState.push(canvasAsJson);
+                    }
+                    _config.currentStateIndex = _config.canvasState.length - 1;
+                    if ((_config.currentStateIndex == _config.canvasState.length - 1) && _config.currentStateIndex != -1) {
+                        _config.redoButton.disabled = "disabled";
+                        _config.undoButton.removeAttribute('disabled');
+                    }
+                }
+            }
+
+            var undo = function() {
+                debugger
+                if (_config.undoFinishedStatus) {
+                    if (_config.currentStateIndex == -1) {
+                        _config.undoStatus = false;
+                    } else {
+                        if (_config.canvasState.length >= 1) {
+                            _config.undoFinishedStatus = 0;
+                            if (_config.currentStateIndex != 0) {
+                                _config.undoStatus = true;
+                                canvas.loadFromJSON(_config.canvasState[_config.currentStateIndex - 1], function() {
+                                    var jsonData = JSON.parse(_config.canvasState[_config.currentStateIndex - 1]);
+                                    // console.log(jsonData)
+
+                                    canvas.renderAll();
+                                    _config.undoStatus = false;
+                                    _config.currentStateIndex -= 1;
+                                    _config.undoButton.removeAttribute("disabled");
+                                    if (_config.currentStateIndex !== _config.canvasState.length - 1) {
+                                        _config.redoButton.removeAttribute('disabled');
+                                    }
+                                    _config.undoFinishedStatus = 1;
+                                },function (o,object) {
+                                    object.set('objectCaching',false);
+                                    object.set('transparentCorners',false);
+                                    object.set('cornerStyle','circle');
+                                    object.set('cornerSize',8);
+                                });
+                            } else if (_config.currentStateIndex == 0) {
+                                canvas.clear();
+                                _config.undoFinishedStatus = 1;
+                                _config.undoButton.disabled = "disabled";
+                                _config.redoButton.removeAttribute('disabled');
+                                _config.currentStateIndex -= 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var redo = function() {
+                debugger
+                if (_config.redoFinishedStatus) {
+                    if ((_config.currentStateIndex == _config.canvasState.length - 1) && _config.currentStateIndex != -1) {
+                        _config.redoButton.disabled = "disabled";
+                    } else {
+                        if (_config.canvasState.length > _config.currentStateIndex && _config.canvasState.length != 0) {
+                            _config.redoFinishedStatus = 0;
+                            _config.redoStatus = true;
+                            canvas.loadFromJSON(_config.canvasState[_config.currentStateIndex + 1], function() {
+                                var jsonData = JSON.parse(_config.canvasState[_config.currentStateIndex + 1]);
+
+                                canvas.renderAll();
+                                _config.redoStatus = false;
+                                _config.currentStateIndex += 1;
+                                if (_config.currentStateIndex != -1) {
+                                    _config.undoButton.removeAttribute('disabled');
+                                }
+                                _config.redoFinishedStatus = 1;
+                                if ((_config.currentStateIndex == _config.canvasState.length - 1) && _config.currentStateIndex != -1) {
+                                    _config.redoButton.disabled = "disabled";
+                                }
+                            },function (o,object) {
+                                object.set('objectCaching',false);
+                                object.set('transparentCorners',false);
+                                object.set('cornerStyle','circle');
+                                object.set('cornerSize',8);
+                            });
+                        }
+                    }
+                }
+            }
+
+            $("#undo").click(function () {
+                undo();
+            })
+
+            $("#redo").click(function () {
+                redo();
+            })
+
+
+
+            // $("#download").click(function () {
+            //     var json = canvas.toJSON();
+            //     var datastr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            //     var downloadAnchorNode = document.createElement('a')
+            //     downloadAnchorNode.setAttribute("href", datastr);
+            //     downloadAnchorNode.setAttribute("download", 'paint.json')
+            //     downloadAnchorNode.click();
+            //     downloadAnchorNode.remove();
+            //     // canvas.clear();
+            //     // canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+            // });
+
+            // $("#upload").click(function () {
+            //     $("#ff").click();
+            // });
+            // $("#ff").change(function () {
+            //     var file = this.files[0]
+            //     console.log(file)
+            //     var reader = new FileReader()
+            //     reader.readAsText(file);
+            //     reader.onload = function(){
+            //         var result = JSON.parse(this.result)
+            //         console.log(result)
+            //         canvas.clear();
+            //         canvas.loadFromJSON(result, canvas.renderAll.bind(canvas),function(o, object) {
+            //             console.log(o)
+            //             console.log(object)
+            //             object.set('objectCaching',false)
+            //         });
+            //
+            //     }
+            //     $('#ff').val("")
+            // });
+
+        }
+
+        //右键点击事件响应
+        function onContextmenu(event) {
+            var pointer = canvas.getPointer(event.originalEvent);
+            var objects = canvas.getObjects();
+            for (var i = objects.length - 1; i >= 0; i--) {
+                var object = objects[i];
+                //判断该对象是否在鼠标点击处
+                if (canvas.containsPoint(event, object)) {
+                    //选中该对象
+                    canvas.setActiveObject(object);
+                    //显示菜单
+                    showContextMenu(event, object);
+                    continue;
+                }
+            }
+
+            //阻止系统右键菜单
+            event.preventDefault();
+            return false;
+        }
+
+        //右键菜单项点击
+        function showContextMenu(event, object) {
+            //定义右键菜单项
+            contextMenuItems = {
+                "delete": { name: "删除", icon: "fa-close", data: object }
+            };
+            //右键菜单显示位置
+            var position = {
+                x: event.clientX,
+                y: event.clientY
+            }
+            $('#contextmenu-output').contextMenu(position);
+        }
+
+        //右键菜单项点击
+        function contextMenuClick(key, options) {
+            if (key == "delete") {
+                //得到对应的object并删除
+                var object = contextMenuItems[key].data;
+                canvas.remove(object);
+            }
+        }
+    </script>
+</head>
+
+<body>
+<div style="float: left"><canvas id="canvas" width="450" height="200"></canvas></div>
+<div id="contextmenu-output"></div>
+<div class="panel-body" style="float: right;width: 30%">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseColor" aria-expanded="true">颜色</a>
+                </h5>
+            </div>
+            <div id="collapseColor" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <form class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <div class="layui-input-inline" style="width: 120px;">
+                                <input type="text" value="#000000" placeholder="请选择颜色" class="layui-input" id="test-form-input">
+                            </div>
+                            <div class="layui-inline" style="left: -11px;">
+                                <div id="test-form"></div>
+                            </div>
+                            <!--                            <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="textBtn" style="margin-bottom: 7px">添加文字</button>-->
+                        </div>
+                    </form></div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseOne" aria-expanded="true">背景</a>
+                </h5>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+                <div class="panel-body">
+                    <img class="background" src="../../static/ruoyi.png" th:src="@{/ruoyi.png}" width="100px" height="100px">
+                    <img class="background" src="../../static/img/profile.jpg" th:src="@{/img/profile.jpg}" width="100px" height="100px">
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseTwo" class="collapsed" aria-expanded="false">元素</a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" aria-expanded="false">
+                <div class="panel-body">
+                    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">个性贴纸</li>
+                            <li>官方贴纸</li>
+                            <li>基本图形</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <img draggable="true" οndragstart="drag(event)" data-id="img" class="tiezi" src="../../static/img/qr_code.png" th:src="@{/img/qr_code.png}" width="100px" height="100px">
+                            </div>
+                            <div class="layui-tab-item">
+                                <img class="tiezi" src="../../static/img/qr_code.png" th:src="@{/img/qr_code.png}" width="100px" height="100px">
+                            </div>
+                            <div class="layui-tab-item">
+                                <img data-id="rectangle" draggable="true" fill="false" src="../../static/img/rectangle_line.png" th:src="@{/img/rectangle_line.png}"/>
+<!--                                <img data-id="rectangle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM0MjQwOTIzOUU1RTExRUE4NEQ3ODRDMEE3MjBGNjVDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM0MjQwOTI0OUU1RTExRUE4NEQ3ODRDMEE3MjBGNjVDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzQyNDA5MjE5RTVFMTFFQTg0RDc4NEMwQTcyMEY2NUMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzQyNDA5MjI5RTVFMTFFQTg0RDc4NEMwQTcyMEY2NUMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6YZIgmAAABa0lEQVR42uzdvU3DQBiA4TuMAsoG2QBK2IBlEA1FGktMgKChoACxCgUjpAwbZIMIUI7jKECOcOEisQE9r3SxonTfo/OPUjjmnKugX9OOEQARECACAkRAgAgIEAERECACAkRA/nm7nx/1/fymHPbKejeSQTbF6/XZ4fQbJOdwbi6DN22espbmMWjLtVNWsxjCrBwWZfmvfXulsiY5hKPWa0izqor15enBk5ltt4uH55NVyo9d7rJGxtVLo663vU5V/VR5DvFgKCBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBAtFmQZCy9lLqCvJlVL7XO+cfrKlLKV/XdfNH2mzbWqqxJJ5AcwrF5DX8NGRvFoI3XdkiM4bYc9oO3tA21KV6+vsScsxe4eA4RECACAkRAgAgIEAERkL/QhwADAFoqLQ2GRLI1AAAAAElFTkSuQmCC">-->
+<!--                                <img data-id="triangle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM3OUEwMkZDOUU1RTExRUFCREQxREJBMDA2QzRGMERBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM3OUEwMkZEOUU1RTExRUFCREQxREJBMDA2QzRGMERBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Qzc5QTAyRkE5RTVFMTFFQUJERDFEQkEwMDZDNEYwREEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Qzc5QTAyRkI5RTVFMTFFQUJERDFEQkEwMDZDNEYwREEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4lBEjmAAAJLUlEQVR42uxd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">-->
+<!--                                <img data-id="circle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM5RDJCRDQwOUU1RTExRUE5MkRFQzZCOTY1RDA1OUIxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM5RDJCRDQxOUU1RTExRUE5MkRFQzZCOTY1RDA1OUIxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzlEMkJEM0U5RTVFMTFFQTkyREVDNkI5NjVEMDU5QjEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzlEMkJEM0Y5RTVFMTFFQTkyREVDNkI5NjVEMDU5QjEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6qLnPvAAAMdUlEQVR42uyd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" >-->
+                                <img data-id="triangle" draggable="true" fill="false" src="../../static/img/triangle_line.png" th:src="@{/img/triangle_line.png}"/>
+                                <img data-id="circle" draggable="true" fill="false" src="../../static/img/circle_line.png" th:src="@{/img/circle_line.png}"/>
+                                <img data-id="rectangle" draggable="true" fill="true" src="../../static/img/rectangle_fill.png" th:src="@{/img/rectangle_fill.png}"/>
+                                <img data-id="triangle" draggable="true" fill="true" src="../../static/img/triangle_fill.png" th:src="@{/img/triangle_fill.png}"/>
+                                <img data-id="circle" draggable="true" fill="true" src="../../static/img/circle_fill.png" th:src="@{/img/circle_fill.png}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseThree" class="collapsed" aria-expanded="false">文字</a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" aria-expanded="false">
+                <div class="panel-body">
+                    <img draggable="true" data-id="fonts" src="../../static/img/font.png" th:src="@{/img/font.png}"/>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseFour" class="collapsed" aria-expanded="false">图片</a>
+                </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse" aria-expanded="false">
+                <div class="panel-body">
+                    <div class="layui-upload-drag" id="uploadDemo">
+                        <i class="layui-icon"></i>
+                        <p>点击上传，或将图片拖拽到此处</p>
+                        <div class="layui-hide" id="uploadDemoView">
+                            <hr>
+                            <img src="" alt="上传成功后渲染" style="max-width: 100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseRedo" class="collapsed" aria-expanded="false">撤销重做</a>
+                </h4>
+            </div>
+            <div id="collapseRedo" class="panel-collapse collapse" aria-expanded="false">
+                <div class="panel-body">
+                    <button class="btn btn-success btn-circle btn-lg" type="button" id="undo" disabled><i class="fa fa-reply"></i>
+                    </button>
+                    <button class="btn btn-info btn-circle btn-lg" type="button" id="redo" disabled><i class="fa fa-share"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseDownload" class="collapsed" aria-expanded="false">下载</a>
+                </h4>
+            </div>
+            <div id="collapseDownload" class="panel-collapse collapse" aria-expanded="false">
+                <div class="panel-body">
+                    <button class="btn btn-success  dim btn-large-dim" type="button" id="download"><i class="fa fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--<div style="float: right;width: 30%">-->
+<!--    <div class="layui-collapse" lay-filter="test">-->
+<!--        <div class="layui-colla-item">-->
+<!--            <h2 class="layui-colla-title">背景</h2>-->
+<!--            <div class="layui-colla-content">-->
+<!--                <img class="background" src="../../static/ruoyi.png" th:src="@{/ruoyi.png}" width="100px" height="100px">-->
+<!--                <img class="background" src="../../static/img/profile.jpg" th:src="@{/img/profile.jpg}" width="100px" height="100px">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="layui-colla-item">-->
+<!--            <h2 class="layui-colla-title">元素</h2>-->
+<!--            <div class="layui-colla-content">-->
+<!--                <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">-->
+<!--                    <ul class="layui-tab-title">-->
+<!--                        <li class="layui-this">个性贴纸</li>-->
+<!--                        <li>官方贴纸</li>-->
+<!--                        <li>基本图形</li>-->
+<!--                    </ul>-->
+<!--                    <div class="layui-tab-content">-->
+<!--                        <div class="layui-tab-item layui-show">-->
+<!--                            <img draggable="true" οndragstart="drag(event)" data-id="img" class="tiezi" src="../../static/img/qr_code.png" th:src="@{/img/qr_code.png}" width="100px" height="100px">-->
+<!--                        </div>-->
+<!--                        <div class="layui-tab-item">-->
+<!--                            <img class="tiezi" src="../../static/img/qr_code.png" th:src="@{/img/qr_code.png}" width="100px" height="100px">-->
+<!--                        </div>-->
+<!--                        <div class="layui-tab-item">-->
+<!--                            <img data-id="rectangle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM0MjQwOTIzOUU1RTExRUE4NEQ3ODRDMEE3MjBGNjVDIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM0MjQwOTI0OUU1RTExRUE4NEQ3ODRDMEE3MjBGNjVDIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzQyNDA5MjE5RTVFMTFFQTg0RDc4NEMwQTcyMEY2NUMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzQyNDA5MjI5RTVFMTFFQTg0RDc4NEMwQTcyMEY2NUMiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6YZIgmAAABa0lEQVR42uzdvU3DQBiA4TuMAsoG2QBK2IBlEA1FGktMgKChoACxCgUjpAwbZIMIUI7jKECOcOEisQE9r3SxonTfo/OPUjjmnKugX9OOEQARECACAkRAgAgIEAERECACAkRA/nm7nx/1/fymHPbKejeSQTbF6/XZ4fQbJOdwbi6DN22espbmMWjLtVNWsxjCrBwWZfmvfXulsiY5hKPWa0izqor15enBk5ltt4uH55NVyo9d7rJGxtVLo663vU5V/VR5DvFgKCBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBABASIgAAREAEBIiBAtFmQZCy9lLqCvJlVL7XO+cfrKlLKV/XdfNH2mzbWqqxJJ5AcwrF5DX8NGRvFoI3XdkiM4bYc9oO3tA21KV6+vsScsxe4eA4RECACAkRAgAgIEAERkL/QhwADAFoqLQ2GRLI1AAAAAElFTkSuQmCC">-->
+<!--                            <img data-id="triangle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM3OUEwMkZDOUU1RTExRUFCREQxREJBMDA2QzRGMERBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM3OUEwMkZEOUU1RTExRUFCREQxREJBMDA2QzRGMERBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6Qzc5QTAyRkE5RTVFMTFFQUJERDFEQkEwMDZDNEYwREEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6Qzc5QTAyRkI5RTVFMTFFQUJERDFEQkEwMDZDNEYwREEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4lBEjmAAAJLUlEQVR42uxd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">-->
+<!--                            <img data-id="circle" draggable="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkM5RDJCRDQwOUU1RTExRUE5MkRFQzZCOTY1RDA1OUIxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkM5RDJCRDQxOUU1RTExRUE5MkRFQzZCOTY1RDA1OUIxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzlEMkJEM0U5RTVFMTFFQTkyREVDNkI5NjVEMDU5QjEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzlEMkJEM0Y5RTVFMTFFQTkyREVDNkI5NjVEMDU5QjEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6qLnPvAAAMdUlEQVR42uyd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" >-->
+<!--                            <svg t="1591953521805" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2835" width="128" height="128"><path d="M62 62h900v900h-900v-900z" p-id="2836"></path></svg>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="layui-colla-item">-->
+<!--            <h2 class="layui-colla-title">文字</h2>-->
+<!--            <div class="layui-colla-content">-->
+<!--                    <form class="layui-form" action="">-->
+<!--                        <div class="layui-form-item">-->
+<!--                            <div class="layui-input-inline" style="width: 120px;">-->
+<!--                                <input type="text" value="#000000" placeholder="请选择颜色" class="layui-input" id="test-form-input">-->
+<!--                            </div>-->
+<!--                            <div class="layui-inline" style="left: -11px;">-->
+<!--                                <div id="test-form"></div>-->
+<!--                            </div>-->
+<!--&lt;!&ndash;                            <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="textBtn" style="margin-bottom: 7px">添加文字</button>&ndash;&gt;-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABeCAYAAACnzNMpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTM4IDc5LjE1OTgyNCwgMjAxNi8wOS8xNC0wMTowOTowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTcgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjM0QTg2REJCOUU2MTExRUE5NEIxRTA0RENFRjM4RTE2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjM0QTg2REJDOUU2MTExRUE5NEIxRTA0RENFRjM4RTE2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MzRBODZEQjk5RTYxMTFFQTk0QjFFMDREQ0VGMzhFMTYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MzRBODZEQkE5RTYxMTFFQTk0QjFFMDREQ0VGMzhFMTYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7HbHgfAAAH0ElEQVR42uyd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" draggable="true" data-id="fonts" style="left: 896px; top: 149px;">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="layui-colla-item">-->
+<!--            <h2 class="layui-colla-title">图片</h2>-->
+<!--            <div class="layui-colla-content">-->
+<!--                <div class="layui-upload-drag" id="uploadDemo">-->
+<!--                    <i class="layui-icon"></i>-->
+<!--                        <p>点击上传，或将图片拖拽到此处</p>-->
+<!--                        <div class="layui-hide" id="uploadDemoView">-->
+<!--                           <hr>-->
+<!--                            <img src="" alt="上传成功后渲染" style="max-width: 100%">-->
+<!--                        </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--         </div>-->
+<!--    </div>-->
+<!-- </div>-->
+
+</div>
+
+<th:block th:include="include :: footer" />
+<script src="../../static/js/fabric.js" th:src="@{/js/fabric.js}"></script>
+<script src="../../static/js/jquery.contextMenu.min.js" th:src="@{/js/jquery.contextMenu.min.js}"></script>
+<script src="../../static/js/jquery.ui.position.js" th:src="@{/js/jquery.ui.position.js}"></script>
+<script>
+    layui.use(['element','upload','colorpicker'], function() {
+        var $ = layui.jquery
+            ,element = layui.element //Tab的切换功能，切换事件监听等，需要依赖element模块
+            ,upload = layui.upload
+            ,colorpicker = layui.colorpicker;
+
+        //表单赋值
+        colorpicker.render({
+            elem: '#test-form',
+            color:'#000000',
+            done: function(color){
+                $('#test-form-input').val(color);
+                console.log(canvas)
+                console.log(canvas.getActiveObject())
+                let object = canvas.getActiveObject();
+
+                if (object != null){
+                    console.log(object.get('type'))
+                    switch (object.get('type')) {
+                        case 'i-text':
+                            object.set("fill",color);
+                            break;
+                        case 'triangle':
+                        case 'rect':
+                        case 'circle':
+                            if(object.get("isFill") == "true"){
+                                object.set("fill",color);
+                                object.set("stroke",color);
+                            }else{
+                                object.set("stroke",color);
+                            }
+                            break;
+                    }
+                    updateCanvasState();
+                    canvas.renderAll();
+                }
+            }
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#uploadDemo',
+            accept:'images',
+            auto: false,  //选择文件后不自动上传
+            choose:function (obj) {
+                obj.preview(function(index, file, result){
+                    console.log(file)
+                    var imgSrc = window.URL.createObjectURL(file);
+                    console.log(imgSrc)
+                    img = new fabric.Image.fromURL(imgSrc, function(img) {
+                        var scaleP = 1
+                        if(img.width > canvas.width && img.height > canvas.height){
+                            scaleP = canvas.width / img.width > canvas.height / img.height ?  canvas.height / img.height : canvas.width / img.width
+                        }
+                        img.set('selectable', true);
+                        img.set('left', 0);
+                        img.set('top', 0);
+                        img.set({
+                            scaleX: scaleP,
+                            scaleY: scaleP,
+                        });
+                        img.set('crossOrigin','anonymous');
+                        img.set('objectCaching',false);
+                        img.set('transparentCorners',false);
+                        img.set('cornerStyle','circle');
+                        img.set('cornerSize',8)
+                        canvas.add(img);
+                    });
+                });
+            }
+        });
+    })
+
+
+
+</script>
+</body>
+
+</html>

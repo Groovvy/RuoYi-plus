@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('在线作图')" />
+    <style>
+        canvas {
+            border: 1px dashed black;
+        }
+        /*.canvas-container{*/
+        /*    margin: 0 auto;*/
+        /*}*/
+        .layui-colorpicker{
+            height: 38px!important;
+            width: 38px!important;
+        }
+        /*.slider div {width:60px !important; height:60px !important;}*/
+    </style>
+    <link rel="stylesheet" th:href="@{/css/jquery.contextMenu.min.css}">
+    <link rel="stylesheet" th:href="@{/css/layui/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/jquery.bxslider.min.css}">
+</head>
+
+<body>
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-2">
+        <div style="margin-top: 20px"><canvas id="canvas"></canvas>
+            <div id="contextmenu-output"></div>
+            <div class="backgroundSlider">
+
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="panel-body" >
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseColor" aria-expanded="false">颜色</a>
+                        </h5>
+                    </div>
+                    <div id="collapseColor" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <form class="layui-form" action="">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-inline" style="width: 120px;">
+                                        <input type="text" value="#000000" placeholder="请选择颜色" class="layui-input" id="test-form-input">
+                                    </div>
+                                    <div class="layui-inline" style="left: -11px;">
+                                        <div id="test-form"></div>
+                                    </div>
+                                    <!--                            <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="textBtn" style="margin-bottom: 7px">添加文字</button>-->
+                                </div>
+                            </form></div>
+                    </div>
+                </div>
+<!--                <div class="panel panel-default">-->
+<!--                    <div class="panel-heading">-->
+<!--                        <h5 class="panel-title">-->
+<!--                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseOne" aria-expanded="true">背景</a>-->
+<!--                        </h5>-->
+<!--                    </div>-->
+<!--                    <div id="collapseOne" class="panel-collapse collapse in">-->
+<!--                        <div class="panel-body">-->
+<!--                            &lt;!&ndash;                    <img class="background" src="../../static/ruoyi.png" th:src="@{/ruoyi.png}" width="100px" height="100px">&ndash;&gt;-->
+<!--                            &lt;!&ndash;                    <img class="background" src="../../static/img/profile.jpg" th:src="@{/img/profile.jpg}" width="100px" height="100px">&ndash;&gt;-->
+<!--                            <div class="slider2">-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar1"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar2"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar3"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar4"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar5"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar6"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar7"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar8"></div>-->
+<!--                                <div class="slide"><img src="http://placehold.it/60x60&text=FooBar9"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseTwo" class="collapsed" aria-expanded="false">元素</a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in" aria-expanded="false">
+                        <div class="panel-body">
+                            <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                                <ul class="layui-tab-title">
+                                    <li class="layui-this" data-id="specific">个性贴纸</li>
+                                    <li data-id="official">官方贴纸</li>
+                                    <li data-id="basic">基本图形</li>
+                                </ul>
+                                <div class="layui-tab-content">
+                                    <div class="layui-tab-item layui-show" id="specific">
+<!--                                         <div class="slider specific">-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/tai.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/wai.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/xiao.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/yu.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/yue.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/di.png"></div>-->
+<!--                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/UFO.png"></div>-->
+<!--                                        </div>-->
+                                    </div>
+                                    <div class="layui-tab-item" id="official">
+                                        <div class="slider officialSlider">
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/tai.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/wai.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/xiao.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/yu.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/yue.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/di.png"></div>
+                                            <div class="slide"><img ondragstart="drag(event)" draggable="true"  data-id="img"  src="/profile/download/UFO.png"></div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-tab-item">
+                                        <div class="slider basicSlider">
+                                            <div class="slide"><img data-id="rectangle" draggable="true" fill="false"  th:src="@{/img/rectangle_line.png}"/></div>
+                                            <div class="slide"><img data-id="triangle" draggable="true" fill="false"  th:src="@{/img/triangle_line.png}"/></div>
+                                            <div class="slide"><img data-id="circle" draggable="true" fill="false"  th:src="@{/img/circle_line.png}"/></div>
+                                            <div class="slide"><img data-id="rectangle" draggable="true" fill="true"  th:src="@{/img/rectangle_fill.png}"/></div>
+                                            <div class="slide"><img data-id="triangle" draggable="true" fill="true"  th:src="@{/img/triangle_fill.png}"/></div>
+                                            <div class="slide"><img data-id="circle" draggable="true" fill="true"  th:src="@{/img/circle_fill.png}"/></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseThree" class="collapsed" aria-expanded="false">文字</a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" aria-expanded="false">
+                        <div class="panel-body">
+                            <img draggable="true" data-id="fonts" th:src="@{/img/font.png}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseFour" class="collapsed" aria-expanded="false">图片</a>
+                        </h4>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse" aria-expanded="false">
+                        <div class="panel-body">
+                            <div class="layui-upload-drag" id="uploadDemo">
+                                <i class="layui-icon"></i>
+                                <p>点击上传，或将图片拖拽到此处</p>
+                                <div class="layui-hide" id="uploadDemoView">
+                                    <hr>
+                                    <img src="" alt="上传成功后渲染" style="max-width: 100%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseRedo" class="collapsed" aria-expanded="false">撤销重做</a>
+                        </h4>
+                    </div>
+                    <div id="collapseRedo" class="panel-collapse collapse" aria-expanded="false">
+                        <div class="panel-body">
+                            <button class="btn btn-success btn-circle btn-lg" type="button" id="undo" disabled><i class="fa fa-reply"></i>
+                            </button>
+                            <button class="btn btn-info btn-circle btn-lg" type="button" id="redo" disabled><i class="fa fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="tabs_panels.html#collapseDownload" class="collapsed" aria-expanded="false">下载</a>
+                        </h4>
+                    </div>
+                    <div id="collapseDownload" class="panel-collapse collapse" aria-expanded="false">
+                        <div class="panel-body">
+                            <button class="btn btn-success  dim btn-large-dim" type="button" id="download"><i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script  th:src="@{/js/jquery-1.9.1.min.js}"></script>
+<script  th:src="@{/js/fabric.js}"></script>
+<script  th:src="@{/js/jquery.contextMenu.min.js}"></script>
+<script  th:src="@{/js/jquery.ui.position.js}"></script>
+<script  th:src="@{/js/jquery.bxslider.min.js}"></script>
+<script>
+    var canvas;
+    //菜单项
+    var contextMenuItems;
+    var state;
+    var undo = [];
+    var redo = [];
+
+    var width,height,neckline;
+    var officialSlider,specificSlider,basicSlider;
+    var content;
+
+    function save() {
+        debugger
+        redo = [];
+        $('#redo').prop('disabled', true);
+        if (state) {
+            undo.push(state);
+            $('#undo').prop('disabled', false);
+        }
+        state = JSON.stringify(canvas.toJSON(['objectCaching', 'selectable','transparentCorners','cornerStyle','cornerSize']));
+    }
+    function replay(playStack, saveStack, buttonsOn, buttonsOff) {
+        saveStack.push(state);
+        state = playStack.pop();
+        var on = $(buttonsOn);
+        var off = $(buttonsOff);
+
+        on.prop('disabled', true);
+        off.prop('disabled', true);
+        canvas.clear();
+        canvas.loadFromJSON(state, function() {
+            canvas.renderAll();
+
+            on.prop('disabled', false);
+            if (playStack.length) {
+                off.prop('disabled', false);
+            }
+        });
+
+    }
+
+    window.onload = function () {
+
+        $.ajax({
+            type: "get",
+            url: ctx + "onlinePaint/test",
+            async: false,
+            success: function(r) {
+                width = r.can.width;
+                height = r.can.height;
+                neckline = r.can.neckline;
+                let images = r.files;
+                var backgroundDiv;
+                var specificDiv = "<div class='slider specificSlider'>";
+
+                $.each(images,function (i,v) {
+                    if (v.bizType == common_file_type.moban){
+                        backgroundDiv += "<div class='slide'><img class='background' src="+v.filePath+"></div>";
+                    }
+                    if (v.bizType == common_file_type.yuansu){
+                        specificDiv += "<div class=\"slide\"><img ondragstart=\"drag(event)\" draggable=\"true\"  data-id=\"img\"  src="+v.filePath+"></div>"
+                    }
+                });
+                specificDiv += "</div>"
+                $(".backgroundSlider").append(backgroundDiv);
+                $("#specific").append(specificDiv);
+
+                $('.backgroundSlider').bxSlider({
+                    slideWidth: 100,
+                    minSlides: 4,
+                    maxSlides: 4,
+                    slideMargin: 10,
+                    pager: false
+                });
+
+                basicSlider = $('.basicSlider').bxSlider({
+                    slideWidth: 60,
+                    minSlides: 5,
+                    maxSlides: 5,
+                    moveSlides: 2,
+                    slideMargin: 10
+                });
+
+                specificSlider = $('.specificSlider').bxSlider({
+                    slideWidth: 60,
+                    minSlides: 5,
+                    maxSlides: 5,
+                    moveSlides: 2,
+                    slideMargin: 10
+                });
+
+            }
+        });
+
+        officialSlider = $('.officialSlider').bxSlider({
+            slideWidth: 60,
+            minSlides: 5,
+            maxSlides: 5,
+            moveSlides: 2,
+            slideMargin: 10
+        });
+
+        // alert(getParam("tmplCode"));
+        canvas = new fabric.Canvas('canvas',{
+            width:width,
+            height:height,
+            enableRetinaScaling:true
+        });
+
+
+
+        var line = new fabric.Line([0, neckline, width, neckline], {
+            fill: 'blue',
+            stroke: 'blue',
+            strokeDashArray:[3,1],
+            hasControls: false, // 编辑框
+            selectable: false // 不可选中
+        });
+        canvas.add(line);
+
+        $.ajax({
+            type: "get",
+            url: ctx + "onlinePaint/test",
+            async: false,
+            success: function (r) {
+                content = new fabric.Image.fromURL("/profile/download/4.png", function (img) {
+                    img.set({
+                        left: width - img.width,
+                        top: 50,
+                        preserveObjectStacking: true,
+                        hoverCursor: 'auto',
+                        hasControls: false, // 编辑框
+                        selectable: false // 不可选中
+                    });
+                    canvas.add(img)
+                    save();
+                });
+            }
+        })
+
+
+
+
+        //在canvas上层对象上添加右键事件监听
+        $(".upper-canvas").contextmenu(onContextmenu);
+
+        //初始化右键菜单
+        $.contextMenu({
+            selector: '#contextmenu-output',
+            trigger: 'none',
+            build: function ($trigger, e) {
+                //构建菜单项build方法在每次右键点击会执行
+                return {
+                    callback: contextMenuClick,
+                    items: contextMenuItems
+                };
+            },
+        });
+
+
+        $(".background").click(function () {
+            new fabric.Image.fromURL(this.src, function(img) {
+                img.set({
+                    scaleX: canvas.width / img.width,
+                    scaleY: canvas.height / img.height,
+                });
+                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+                save()
+            });
+        })
+
+
+        $("#download").click(function () {
+            canvas.remove(line)
+            // content.sendToBack();
+            var data = canvas.toDataURL( {
+                // format: 'png',
+                // quality: 1,
+                enableRetinaScaling: true
+            });
+            console.log(data);
+        });
+
+
+        $("canvas").bind('drop',function(e){
+            e.preventDefault();
+            console.log("drop")
+            console.log(e)
+            let type = e.originalEvent.dataTransfer.getData("type");
+            let fill = e.originalEvent.dataTransfer.getData("fill");
+            let fillColor = "rgba(255,255,255,0)";
+            let color = $("#test-form-input").val();
+            if(fill == "true"){
+                fillColor = color;
+            }
+            let imgSrc = e.originalEvent.dataTransfer.getData("imgSrc");
+            console.log(type)
+            let offsetX = e.originalEvent.offsetX;
+            let offsetY = e.originalEvent.offsetY;
+
+            switch (type) {
+                case "img":
+                    new fabric.Image.fromURL(imgSrc, function(img) {
+                        var scaleP = 1
+                        if(img.width > canvas.width || img.height > canvas.height){
+                            scaleP = canvas.width / img.width > canvas.height / img.height ?  canvas.height / img.height : canvas.width / img.width
+                        }
+                        img.set('selectable', true);
+                        img.set('left', offsetX);
+                        img.set('top', offsetY);
+                        img.set({
+                            scaleX: scaleP,
+                            scaleY: scaleP,
+                        });
+                        img.set('objectCaching',false);
+                        img.set('transparentCorners',false);
+                        img.set('cornerStyle','circle');
+                        img.set('cornerSize',8)
+                        canvas.add(img);
+                        save();
+                    });
+                    break;
+                case "fonts":
+                    let text=new fabric.IText("双击修改内容",{
+                        fill: color,
+                        fontSize: 18,
+                        left: offsetX,
+                        top: offsetY,
+                        objectCaching: false,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                        cornerSize: 8
+                    });
+                    canvas.add(text)
+                    save();
+                    break;
+                case "triangle":
+                    let triangle = new fabric.Triangle({
+                        top: offsetY,
+                        left: offsetX,
+                        width: Math.sqrt(Math.pow(50, 2) + Math.pow(50 / 2.0, 2)),
+                        height: 50,
+                        stroke: color,
+                        fill: fillColor,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                        cornerSize: 8
+                    });
+                    triangle.set("isFill",fill);
+                    canvas.add(triangle)
+                    save();
+                    break;
+                case "rectangle":
+                    let rectangle = new fabric.Rect({
+                        top: offsetY,
+                        left: offsetX,
+                        width: 100,
+                        height: 50,
+                        stroke: color,
+                        fill: fillColor,
+                        objectCaching: false,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                        cornerSize: 8
+                    });
+                    rectangle.set("isFill",fill);
+                    canvas.add(rectangle)
+                    save();
+                    break;
+                case "circle":
+                    let circle = new fabric.Circle({
+                        top : offsetY,
+                        left : offsetX,
+                        radius : 50,
+                        fill : fillColor,
+                        stroke: color,
+                        objectCaching: false,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                        cornerSize: 8
+                    });
+                    circle.set("isFill",fill);
+                    canvas.add(circle)
+                    save();
+                    break;
+
+            }
+        })
+
+        $("img").bind('dragstart',function(e){
+            console.log("拖拽开始")
+            console.log(e)
+            var data=e.originalEvent.dataTransfer;
+            console.log($(this).attr('data-id'))
+            data.setData('type',$(this).attr('data-id'));
+            data.setData('fill',$(this).attr('fill'));
+            data.setData('imgSrc',$(this).attr('src'));
+            console.log("type:"+data.getData("type"))
+        })
+
+        canvas.on(
+            'object:modified',
+            function() {
+                save();
+            }
+        );
+
+        canvas.on(
+            'object:removed',
+            function() {
+                save();
+            }
+        );
+
+
+        $("#undo").click(function () {
+            replay(undo, redo, '#redo', this);
+        })
+
+        $("#redo").click(function () {
+            replay(redo, undo, '#undo', this);
+        })
+
+
+
+        // $("#download").click(function () {
+        //     var json = canvas.toJSON();
+        //     var datastr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+        //     var downloadAnchorNode = document.createElement('a')
+        //     downloadAnchorNode.setAttribute("href", datastr);
+        //     downloadAnchorNode.setAttribute("download", 'paint.json')
+        //     downloadAnchorNode.click();
+        //     downloadAnchorNode.remove();
+        //     // canvas.clear();
+        //     // canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+        // });
+
+        // $("#upload").click(function () {
+        //     $("#ff").click();
+        // });
+        // $("#ff").change(function () {
+        //     var file = this.files[0]
+        //     console.log(file)
+        //     var reader = new FileReader()
+        //     reader.readAsText(file);
+        //     reader.onload = function(){
+        //         var result = JSON.parse(this.result)
+        //         console.log(result)
+        //         canvas.clear();
+        //         canvas.loadFromJSON(result, canvas.renderAll.bind(canvas),function(o, object) {
+        //             console.log(o)
+        //             console.log(object)
+        //             object.set('objectCaching',false)
+        //         });
+        //
+        //     }
+        //     $('#ff').val("")
+        // });
+
+
+    }
+    function getParam(paramName) {
+        var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[2]);
+        return null;
+    }
+
+
+    function drag(e){
+        var data=e.dataTransfer;
+        data.setData('type',e.target.dataset.id);
+        data.setData('imgSrc',e.target.src);
+    }
+
+    //右键点击事件响应
+    function onContextmenu(event) {
+        var pointer = canvas.getPointer(event.originalEvent);
+        var objects = canvas.getObjects();
+        for (var i = objects.length - 1; i >= 0; i--) {
+            var object = objects[i];
+            //判断该对象是否在鼠标点击处
+            if (canvas.containsPoint(event, object)) {
+                //选中该对象
+                canvas.setActiveObject(object);
+                //显示菜单
+                showContextMenu(event, object);
+                continue;
+            }
+        }
+
+        //阻止系统右键菜单
+        event.preventDefault();
+        return false;
+    }
+
+    //右键菜单项点击
+    function showContextMenu(event, object) {
+        //定义右键菜单项
+        contextMenuItems = {
+            "delete": { name: "删除", icon: "fa-close", data: object }
+        };
+        //右键菜单显示位置
+        var position = {
+            x: event.clientX,
+            y: event.clientY
+        }
+        $('#contextmenu-output').contextMenu(position);
+    }
+
+    //右键菜单项点击
+    function contextMenuClick(key, options) {
+        if (key == "delete") {
+            //得到对应的object并删除
+            var object = contextMenuItems[key].data;
+            canvas.remove(object);
+        }
+    }
+</script>
+<script>
+    layui.use(['element','upload','colorpicker'], function() {
+        var $ = layui.jquery
+            ,element = layui.element //Tab的切换功能，切换事件监听等，需要依赖element模块
+            ,upload = layui.upload
+            ,colorpicker = layui.colorpicker;
+
+        element.on('tab(docDemoTabBrief)',function (data) {
+            var dataid = $(this).attr('data-id');
+            if(dataid == 'specific'){
+                specificSlider.redrawSlider();
+            }
+            if(dataid == 'official'){
+                officialSlider.redrawSlider();
+            }
+            if(dataid == 'basic'){
+                basicSlider.redrawSlider();
+            }
+
+        })
+
+        //表单赋值
+        colorpicker.render({
+            elem: '#test-form',
+            color:'#000000',
+            done: function(color){
+                $('#test-form-input').val(color);
+                console.log(canvas)
+                console.log(canvas.getActiveObject())
+                let object = canvas.getActiveObject();
+
+                if (object != null){
+                    console.log(object.get('type'))
+                    switch (object.get('type')) {
+                        case 'i-text':
+                            object.set("fill",color);
+                            break;
+                        case 'triangle':
+                        case 'rect':
+                        case 'circle':
+                            if(object.get("isFill") == "true"){
+                                object.set("fill",color);
+                            }
+                            object.set("stroke",color);
+                            break;
+                    }
+                    // updateCanvasState();
+                    save();
+                    canvas.renderAll();
+                }
+            }
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#uploadDemo',
+            accept:'images',
+            auto: false,  //选择文件后不自动上传
+            choose:function (obj) {
+                obj.preview(function(index, file, result){
+                    console.log(file)
+                    var imgSrc = window.URL.createObjectURL(file);
+                    console.log(imgSrc)
+                    img = new fabric.Image.fromURL(imgSrc, function(img) {
+                        var scaleP = 1
+                        if(img.width > canvas.width && img.height > canvas.height){
+                            scaleP = canvas.width / img.width > canvas.height / img.height ?  canvas.height / img.height : canvas.width / img.width
+                        }
+                        img.set('selectable', true);
+                        img.set('left', 0);
+                        img.set('top', 0);
+                        img.set({
+                            scaleX: scaleP,
+                            scaleY: scaleP,
+                        });
+                        img.set('crossOrigin','anonymous');
+                        img.set('objectCaching',false);
+                        img.set('transparentCorners',false);
+                        img.set('cornerStyle','circle');
+                        img.set('cornerSize',8)
+                        canvas.add(img);
+                    });
+                });
+            }
+        });
+    })
+
+
+
+</script>
+</body>
+
+</html>
