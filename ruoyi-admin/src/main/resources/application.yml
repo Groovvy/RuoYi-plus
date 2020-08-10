@@ -74,7 +74,7 @@ spring:
 # Redis
 redis:
   database: 0  #Redis索引0~15，默认为0
-  host: 47.102.136.195
+  host: localhost
   port: 6379
   password: 123456 #密码（默认为空）
   ssl: true
@@ -149,9 +149,6 @@ xss:
 
 # 钉钉
 ding:
-  loginAppId: dingoaor79lqv0a35ol4vi
-  loginAppSecret: kLZh4R80UOwzvWjx4Kdepdsp8S0h3unsf7hmrp8Orb1uGCI6aYs5vEHmv3qG3FD7
-  redirectUrl: http://127.0.0.1/dd/ddCallback
-  corpid: dingd3f055af16b46484a39a90f97fcb1e09
-  appKey: dingakk8fahwptni2yu6
-  appSecret: Vzh1iWX6gv7zM07c7scvlZ7ojo3PafoTuhFURQ6wmwtZ46WTuXe9DGK9dEycAjkV
+  loginAppId: 钉钉开放平台扫码登录appId
+  loginAppSecret: 钉钉开放平台扫码登录appSecret
+  redirectUrl: 回调地址
