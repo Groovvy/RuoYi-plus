@@ -5,10 +5,8 @@
 3. 基于fabric.js实现了简易的在线画板
 
 
-<td>
 <img src="https://s1.ax1x.com/2020/08/12/avVwYq.png">
 <img src="https://s1.ax1x.com/2020/08/12/avEYI1.png">
-</td>
 
 
 ## 平台简介
