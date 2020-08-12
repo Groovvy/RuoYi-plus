@@ -1,4 +1,4 @@
-package com.baosight.web.controller.sys;
+package com.ruoyi.web.controller.system;
 
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;

@@ -1,6 +1,6 @@
 package com.ruoyi.web.controller.system;
 
-import com.baosight.common.utils.RedisUtil;
+import com.ruoyi.common.utils.RedisUtil;
 import com.bsteel.uecp.sms.client.SendSMS;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.controller.BaseController;

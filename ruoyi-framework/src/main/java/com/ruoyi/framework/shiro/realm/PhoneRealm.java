@@ -1,6 +1,6 @@
 package com.ruoyi.framework.shiro.realm;
 
-import com.baosight.common.utils.RedisUtil;
+import com.ruoyi.common.utils.RedisUtil;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.enums.LoginType;
