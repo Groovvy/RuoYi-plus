@@ -3,10 +3,13 @@
 1. 集成了redis缓存,可解决session共享问题。
 2. 目前还整合了第三方登录,目前支持钉钉扫码登录,微信扫码登录,短信登录,后续会陆续集成其他第三方登录。
 3. 基于fabric.js实现了简易的在线画板
+<table>
+    <tr>
+        <td><img src="https://s1.ax1x.com/2020/08/12/avVwYq.md.png"></td>
+        <td><img src="https://s1.ax1x.com/2020/08/12/avEYI1.md.png"></td>
+    </tr>
+</table>
 
-
-<img src="https://s1.ax1x.com/2020/08/12/avVwYq.png">
-<img src="https://s1.ax1x.com/2020/08/12/avEYI1.png">
 
 
 ## 平台简介
