@@ -229,7 +229,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select count(1) from sys_user
 		where
 		<if test="arg0 == 'wechat_login_realm'">wx_openid = #{arg1}</if>
-		<if test="arg0 == 'ding_login_realm'">dd_openid = #{arg1}</if>
+		<if test="arg0 == 'dd_login_realm'">dd_openid = #{arg1}</if>
 		<if test="arg0 == 'qq_login_realm'">qq_openid = #{arg1}</if>
 	</select>
 
@@ -237,7 +237,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<include refid="selectUserVo"/>
 		where
 		<if test="arg0 == 'wechat_login_realm'">wx_openid = #{arg1}</if>
-		<if test="arg0 == 'ding_login_realm'">dd_openid = #{arg1}</if>
+		<if test="arg0 == 'dd_login_realm'">dd_openid = #{arg1}</if>
 		<if test="arg0 == 'qq_login_realm'">qq_openid = #{arg1}</if>
 	</select>
 

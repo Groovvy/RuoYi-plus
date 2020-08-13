@@ -28,9 +28,9 @@ import java.util.Map;
  * @author wanghuaan
  * @date 2020/8/12
  **/
-public class QQRealm extends AuthorizingRealm {
+public class QqRealm extends AuthorizingRealm {
 
-    private static final Logger log = LoggerFactory.getLogger(QQRealm.class);
+    private static final Logger log = LoggerFactory.getLogger(QqRealm.class);
 
     @Autowired
     private ISysUserService sysUserService;

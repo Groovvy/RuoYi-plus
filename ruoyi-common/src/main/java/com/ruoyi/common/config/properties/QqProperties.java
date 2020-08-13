@@ -1,4 +1,4 @@
-package com.ruoyi.common.config;
+package com.ruoyi.common.config.properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2020/8/12
  **/
 @Configuration
-public class QQConfig {
+public class QqProperties {
 
     @Value("${qq.appId}")
     private String appId;

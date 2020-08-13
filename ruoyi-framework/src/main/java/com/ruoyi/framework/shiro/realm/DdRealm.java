@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author wanghuaan
  * @date 2020/5/13
  **/
-public class DingRealm extends AuthorizingRealm {
+public class DdRealm extends AuthorizingRealm {
 
     private static final Logger log = LoggerFactory.getLogger(UserRealm.class);
 
@@ -35,13 +35,13 @@ public class DingRealm extends AuthorizingRealm {
 
     @Override
     public String getName() {
-        return LoginType.DING_LOGIN.getType();
+        return LoginType.DD_LOGIN.getType();
     }
 
     @Override
     public boolean supports(AuthenticationToken token) {
         if (token instanceof UserToken) {
-            return ((UserToken) token).getLoginType() == LoginType.DING_LOGIN;
+            return ((UserToken) token).getLoginType() == LoginType.DD_LOGIN;
         } else {
             return false;
         }

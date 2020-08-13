@@ -1,4 +1,4 @@
-package com.ruoyi.common.config;
+package com.ruoyi.common.config.properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2020/5/13
  **/
 @Configuration
-public class DingConfig {
+public class DdProperties {
 
     @Value("${ding.loginAppId}")
     private String loginAppId;

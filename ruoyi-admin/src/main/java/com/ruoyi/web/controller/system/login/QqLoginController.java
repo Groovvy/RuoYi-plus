@@ -2,7 +2,7 @@ package com.ruoyi.web.controller.system.login;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.ruoyi.common.config.QQConfig;
+import com.ruoyi.common.config.properties.QqProperties;
 import com.ruoyi.common.enums.LoginType;
 import com.ruoyi.common.utils.http.HttpClientUtils;
 import com.ruoyi.framework.shiro.token.UserToken;
@@ -32,18 +32,18 @@ import java.util.UUID;
  **/
 @Controller
 @RequestMapping("/qq")
-public class QQLoginController {
-    private Logger logger = LoggerFactory.getLogger(QQLoginController.class);
+public class QqLoginController {
+    private Logger logger = LoggerFactory.getLogger(QqLoginController.class);
 
     @Autowired
-    private QQConfig qqConfig;
+    private QqProperties qqProperties;
 
     @GetMapping("/qqLogin")
     public void qqLogin(HttpServletResponse response){
         StringBuffer baseUrl=new StringBuffer("https://graph.qq.com/oauth2.0/authorize?");
         baseUrl.append("response_type=code&");
-        baseUrl.append("client_id="+qqConfig.getAppId());
-        baseUrl.append("&redirect_uri="+qqConfig.getRedirectUrl());
+        baseUrl.append("client_id="+ qqProperties.getAppId());
+        baseUrl.append("&redirect_uri="+ qqProperties.getRedirectUrl());
         baseUrl.append("&state="+ UUID.randomUUID());
         try {
             response.sendRedirect(baseUrl.toString());
@@ -78,10 +78,10 @@ public class QQLoginController {
     public String getQQToken(String code) throws Exception {
         StringBuffer baseUrl= new StringBuffer("https://graph.qq.com/oauth2.0/token?");
         baseUrl.append("grant_type=authorization_code&");
-        baseUrl.append("client_id="+qqConfig.getAppId());
-        baseUrl.append("&client_secret="+qqConfig.getAppKey());
+        baseUrl.append("client_id="+ qqProperties.getAppId());
+        baseUrl.append("&client_secret="+ qqProperties.getAppKey());
         baseUrl.append("&code="+code);
-        baseUrl.append("&redirect_uri="+qqConfig.getRedirectUrl());
+        baseUrl.append("&redirect_uri="+ qqProperties.getRedirectUrl());
         String token= HttpClientUtils.get(baseUrl.toString(), "UTF-8");
         token=token.split("&")[0];
         token=token.split("=")[1];
@@ -99,7 +99,7 @@ public class QQLoginController {
     }
 
     public Map<String, Object> getUserInfo(String token, String openid) throws Exception {
-        String infoUrl= "https://graph.qq.com/user/get_user_info?access_token="+token+"&oauth_consumer_key="+qqConfig.getAppId()
+        String infoUrl= "https://graph.qq.com/user/get_user_info?access_token="+token+"&oauth_consumer_key="+ qqProperties.getAppId()
                 +"&openid="+openid;
         String user_info =HttpClientUtils.get(infoUrl.toString(), "UTF-8");
         logger.info("user_info:"+user_info);

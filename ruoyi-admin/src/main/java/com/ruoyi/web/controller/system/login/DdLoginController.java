@@ -5,7 +5,7 @@ import com.dingtalk.api.request.OapiGettokenRequest;
 import com.dingtalk.api.request.OapiSnsGetuserinfoBycodeRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiSnsGetuserinfoBycodeResponse;
-import com.ruoyi.common.config.DingConfig;
+import com.ruoyi.common.config.properties.DdProperties;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.enums.LoginType;
 import com.ruoyi.common.utils.StringUtils;
@@ -32,10 +32,10 @@ import java.util.UUID;
  **/
 @Controller
 @RequestMapping("/dd")
-public class DingLoginController extends BaseController {
+public class DdLoginController extends BaseController {
 
     @Autowired
-    private DingConfig dingConfig;
+    private DdProperties ddProperties;
 
 
     @GetMapping("/ddLogin")
@@ -43,8 +43,8 @@ public class DingLoginController extends BaseController {
         StringBuffer baseUrl=new StringBuffer("https://oapi.dingtalk.com/connect/qrconnect?");
         baseUrl.append("response_type=code&");
         baseUrl.append("scope=snsapi_login&");
-        baseUrl.append("appid="+dingConfig.getLoginAppId());
-        baseUrl.append("&redirect_uri="+dingConfig.getRedirectUrl());
+        baseUrl.append("appid="+ ddProperties.getLoginAppId());
+        baseUrl.append("&redirect_uri="+ ddProperties.getRedirectUrl());
         baseUrl.append("&state="+ UUID.randomUUID());
         try {
             response.sendRedirect(baseUrl.toString());
@@ -60,9 +60,9 @@ public class DingLoginController extends BaseController {
             DefaultDingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/sns/getuserinfo_bycode");
             OapiSnsGetuserinfoBycodeRequest req = new OapiSnsGetuserinfoBycodeRequest();
             req.setTmpAuthCode(request.getParameter("code"));
-            OapiSnsGetuserinfoBycodeResponse response = client.execute(req,dingConfig.getLoginAppId(),dingConfig.getLoginAppSecret());
+            OapiSnsGetuserinfoBycodeResponse response = client.execute(req, ddProperties.getLoginAppId(), ddProperties.getLoginAppSecret());
 
-            UserToken userToken = new UserToken(LoginType.DING_LOGIN,response.getUserInfo().getNick(),response.getUserInfo().getOpenid(),response.getUserInfo().getOpenid());
+            UserToken userToken = new UserToken(LoginType.DD_LOGIN,response.getUserInfo().getNick(),response.getUserInfo().getOpenid(),response.getUserInfo().getOpenid());
             ShiroUtils.getSubject().login(userToken);
             SysUser currentUser = ShiroUtils.getSysUser();
             if(StringUtils.isEmpty(currentUser.getPhonenumber())){
@@ -99,8 +99,8 @@ public class DingLoginController extends BaseController {
     public String getToken() throws ApiException {
         DefaultDingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/gettoken");
         OapiGettokenRequest request = new OapiGettokenRequest();
-        request.setAppkey(dingConfig.getAppKey());
-        request.setAppsecret(dingConfig.getAppSecret());
+        request.setAppkey(ddProperties.getAppKey());
+        request.setAppsecret(ddProperties.getAppSecret());
         request.setHttpMethod("GET");
         OapiGettokenResponse response = client.execute(request);
         logger.info("response:"+response);

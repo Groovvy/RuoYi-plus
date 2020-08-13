@@ -13,7 +13,7 @@ public enum LoginType {
     //手机验证码登录
     USER_PHONE("user_phone_realm"),
     //钉钉免密登录
-    DING_LOGIN("ding_login_realm"),
+    DD_LOGIN("dd_login_realm"),
     //钉钉免密登录
     QQ_LOGIN("qq_login_realm"),
     //微信免密登录

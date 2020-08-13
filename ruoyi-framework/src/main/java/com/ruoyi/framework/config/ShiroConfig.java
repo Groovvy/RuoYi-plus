@@ -166,7 +166,7 @@ public class ShiroConfig
         // 用户密码登录realm
         realms.add(userPasswordRealm());
         // 钉钉登录realm
-        realms.add(dingRealm());
+        realms.add(ddRealm());
         // 手机验证码登录realm
         realms.add(phoneRealm());
         realms.add(qqRealm());
@@ -205,11 +205,11 @@ public class ShiroConfig
      * @return
      */
     @Bean
-    public DingRealm dingRealm() {
-        DingRealm dingRealm = new DingRealm();
-        dingRealm.setName(LoginType.DING_LOGIN.getType());
-        dingRealm.setCacheManager(cacheManagerConfig.getRedisCacheManager());
-        return dingRealm;
+    public DdRealm ddRealm() {
+        DdRealm ddRealm = new DdRealm();
+        ddRealm.setName(LoginType.DD_LOGIN.getType());
+        ddRealm.setCacheManager(cacheManagerConfig.getRedisCacheManager());
+        return ddRealm;
     }
 
     /**
@@ -218,8 +218,8 @@ public class ShiroConfig
      * @return
      */
     @Bean
-    public QQRealm qqRealm() {
-        QQRealm qqRealm = new QQRealm();
+    public QqRealm qqRealm() {
+        QqRealm qqRealm = new QqRealm();
         qqRealm.setName(LoginType.QQ_LOGIN.getType());
         qqRealm.setCacheManager(cacheManagerConfig.getRedisCacheManager());
         return qqRealm;
