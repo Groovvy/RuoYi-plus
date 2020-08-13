@@ -25,24 +25,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author wanghuaan
- * @date 2020/8/12
+ * @date 2020/8/13
  **/
-public class QqRealm extends AuthorizingRealm {
+public class WxRealm extends AuthorizingRealm {
 
-    private static final Logger log = LoggerFactory.getLogger(QqRealm.class);
+    private static final Logger log = LoggerFactory.getLogger(WxRealm.class);
 
     @Autowired
     private ISysUserService sysUserService;
 
     @Override
     public String getName() {
-        return LoginType.QQ_LOGIN.getType();
+        return LoginType.WX_LOGIN.getType();
     }
 
     @Override
     public boolean supports(AuthenticationToken token) {
         if (token instanceof UserToken) {
-            return ((UserToken) token).getLoginType() == LoginType.QQ_LOGIN;
+            return ((UserToken) token).getLoginType() == LoginType.WX_LOGIN;
         } else {
             return false;
         }
@@ -56,7 +56,7 @@ public class QqRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
 
-        log.info("---------------- qq登录 ----------------------");
+        log.info("---------------- wx登录 ----------------------");
         UserToken token = (UserToken) authenticationToken;
         String nickName = token.getUsername();
         String openid = token.getCode();
@@ -66,10 +66,10 @@ public class QqRealm extends AuthorizingRealm {
         if(UserConstants.USER_OPENID_UNIQUE.equals(sysUserService.checkOpenIdUnique(getName(),openid))){
             SysUser defalutUser = new SysUser();
             defalutUser.setLoginName(nickName);
-            defalutUser.setQqOpenId(openid);
-            defalutUser.setAvatar(userInfo.getString("figureurl_qq"));
+            defalutUser.setWxOpenId(openid);
+            defalutUser.setAvatar(userInfo.getString("headimgurl"));
             defalutUser.setUserName(nickName);
-            defalutUser.setSex(userInfo.getString("gender_type"));
+            defalutUser.setSex(userInfo.getString("sex"));
             //角色
             Long[] roleIds = {Long.parseLong("2")};
             defalutUser.setRoleIds(roleIds);
@@ -84,9 +84,9 @@ public class QqRealm extends AuthorizingRealm {
         }
 
         SysUser user = sysUserService.selectUserByOpenId(getName(),openid);
-        if(!user.getLoginName().equals(nickName) || !user.getAvatar().equals(userInfo.getString("figureurl_qq"))){
+        if(!user.getLoginName().equals(nickName) || !user.getAvatar().equals(userInfo.getString("headimgurl"))){
             user.setUserName(nickName);
-            user.setAvatar(userInfo.getString("figureurl_qq"));
+            user.setAvatar(userInfo.getString("headimgurl"));
             sysUserService.updateUserInfo(user);
         }
 

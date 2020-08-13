@@ -10,22 +10,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DdProperties {
 
-    @Value("${ding.loginAppId}")
+    @Value("${dd.loginAppId}")
     private String loginAppId;
 
-    @Value("${ding.loginAppSecret}")
+    @Value("${dd.loginAppSecret}")
     private String loginAppSecret;
 
-    @Value("${ding.corpid}")
+    @Value("${dd.corpid}")
     private String corpid;
 
-    @Value("${ding.redirectUrl}")
+    @Value("${dd.redirectUrl}")
     private String redirectUrl;
 
-    @Value("${ding.appKey}")
+    @Value("${dd.appKey}")
     private String appKey;
 
-    @Value("${ding.appSecret}")
+    @Value("${dd.appSecret}")
     private String appSecret;
 
     public String getAppSecret() {

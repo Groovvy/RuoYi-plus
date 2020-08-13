@@ -17,7 +17,7 @@ public enum LoginType {
     //钉钉免密登录
     QQ_LOGIN("qq_login_realm"),
     //微信免密登录
-    WECHAT_LOGIN("wechat_login_realm");
+    WX_LOGIN("wx_login_realm");
 
     private String type;
 

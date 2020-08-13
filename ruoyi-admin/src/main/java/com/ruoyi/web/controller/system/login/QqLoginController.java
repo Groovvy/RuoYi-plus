@@ -8,7 +8,6 @@ import com.ruoyi.common.utils.http.HttpClientUtils;
 import com.ruoyi.framework.shiro.token.UserToken;
 import com.ruoyi.framework.util.ShiroUtils;
 import com.ruoyi.system.domain.SysUser;
-import com.taobao.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.slf4j.Logger;
@@ -22,8 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -59,7 +56,7 @@ public class QqLoginController {
             logger.info("token:" + token);
             String openid = getOpenId(token);
             logger.info("openid:" + openid);
-            Map<String, Object> userInfo = getUserInfo(token, openid);
+            JSONObject userInfo = getUserInfo(token, openid);
 
             UserToken userToken = new UserToken(LoginType.QQ_LOGIN, String.valueOf(userInfo.get("nickname")), openid, openid,userInfo);
             ShiroUtils.getSubject().login(userToken);
@@ -68,7 +65,7 @@ public class QqLoginController {
                 return "redirect:/attachMobile";
             }
             return "redirect:/index";
-        }catch (AuthenticationException | ApiException e){
+        }catch (AuthenticationException e){
             return  "redirect:/login?msg="+ URLEncoder.encode(e.getMessage(),"utf-8");
         }catch (Exception e){
             return  "redirect:/login?msg="+ URLEncoder.encode("登录异常","utf-8");
@@ -98,15 +95,13 @@ public class QqLoginController {
         return openid;
     }
 
-    public Map<String, Object> getUserInfo(String token, String openid) throws Exception {
+    public JSONObject getUserInfo(String token, String openid) throws Exception {
         String infoUrl= "https://graph.qq.com/user/get_user_info?access_token="+token+"&oauth_consumer_key="+ qqProperties.getAppId()
                 +"&openid="+openid;
         String user_info =HttpClientUtils.get(infoUrl.toString(), "UTF-8");
         logger.info("user_info:"+user_info);
         JSONObject parseObject = JSON.parseObject(user_info);
-        Map<String, Object> map= new HashMap<String, Object>();
-        map=parseObject;
-        return map;
+        return parseObject;
     }
 
 }

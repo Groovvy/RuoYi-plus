@@ -169,7 +169,10 @@ public class ShiroConfig
         realms.add(ddRealm());
         // 手机验证码登录realm
         realms.add(phoneRealm());
+        // qq登录realm
         realms.add(qqRealm());
+        // wx登录realm
+        realms.add(wxRealm());
         securityManager.setRealms(realms);
 
         securityManager.setCacheManager(cacheManagerConfig.getRedisCacheManager());
@@ -223,6 +226,19 @@ public class ShiroConfig
         qqRealm.setName(LoginType.QQ_LOGIN.getType());
         qqRealm.setCacheManager(cacheManagerConfig.getRedisCacheManager());
         return qqRealm;
+    }
+
+    /**
+     * wx登录realm
+     *
+     * @return
+     */
+    @Bean
+    public WxRealm wxRealm() {
+        WxRealm wxRealm = new WxRealm();
+        wxRealm.setName(LoginType.WX_LOGIN.getType());
+        wxRealm.setCacheManager(cacheManagerConfig.getRedisCacheManager());
+        return wxRealm;
     }
 
     /**
@@ -284,6 +300,8 @@ public class ShiroConfig
         filterChainDefinitionMap.put("/dd/ddCallback", "anon");
         filterChainDefinitionMap.put("/qq/qqLogin", "anon");
         filterChainDefinitionMap.put("/qq/qqCallback", "anon");
+        filterChainDefinitionMap.put("/wx/wxLogin", "anon");
+        filterChainDefinitionMap.put("/wx/wxCallback", "anon");
         filterChainDefinitionMap.put("/sendSMS", "anon");
         filterChainDefinitionMap.put("/phoneLogin", "anon");
 
