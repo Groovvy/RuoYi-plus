@@ -152,3 +152,15 @@ ding:
   loginAppId: 钉钉开放平台扫码登录appId
   loginAppSecret: 钉钉开放平台扫码登录appSecret
   redirectUrl: 回调地址
+# qq
+qq:
+  appId: 腾讯互联appId
+  appKey: appKey
+  redirectUrl: 回调地址
+
+# wx
+wx:
+  appId: 微信开放平台appId
+  appSecret: appSecret
+  redirectUrl: 回调地址
+
