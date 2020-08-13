@@ -13,8 +13,10 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -23,13 +25,15 @@ import java.net.URLEncoder;
  * @author wanghuaan
  * @date 2020/8/13
  **/
+@Controller
+@RequestMapping("wx")
 public class WxLoginController extends BaseController {
     Logger logger = LoggerFactory.getLogger(WxLoginController.class);
 
     @Autowired
     WxProperties wxProperties;
-    @GetMapping("/wxlogin")
-    public String wxlogin() throws UnsupportedEncodingException {
+    @GetMapping("/wxLogin")
+    public String wxLogin() throws UnsupportedEncodingException {
         //用户同意授权，获取code
         String url = "https://open.weixin.qq.com/connect/qrconnect?appid=" + wxProperties.getAppId() +
                 "&redirect_uri=" + URLEncoder.encode(wxProperties.getRedirectUrl(),"utf-8")+
@@ -40,7 +44,7 @@ public class WxLoginController extends BaseController {
     }
 
     @GetMapping("/wxCallback")
-    public String wxcallback(String code, ModelMap map) throws UnsupportedEncodingException {
+    public String wxCallback(String code, ModelMap map) throws UnsupportedEncodingException {
         try {
             // 通过code换取网页授权access_token
             String url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + wxProperties.getAppId() +
