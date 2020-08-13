@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.system;
+package com.ruoyi.web.controller.system.login;
 
 import com.ruoyi.common.utils.RedisUtil;
 import com.bsteel.uecp.sms.client.SendSMS;

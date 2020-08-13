@@ -90,8 +90,11 @@ public class SysUser extends BaseEntity
     /** 钉钉openid*/
     private String ddOpenId;
 
-    /** 威胁你openid*/
+    /** 微信openid*/
     private String wxOpenId;
+
+    /** qqopenid*/
+    private String qqOpenId;
 
     private SysDept dept;
 
@@ -347,6 +350,14 @@ public class SysUser extends BaseEntity
 
     public void setWxOpenId(String wxOpenId) {
         this.wxOpenId = wxOpenId;
+    }
+
+    public String getQqOpenId() {
+        return qqOpenId;
+    }
+
+    public void setQqOpenId(String qqOpenId) {
+        this.qqOpenId = qqOpenId;
     }
 
     @Override

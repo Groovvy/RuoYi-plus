@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.system;
+package com.ruoyi.web.controller.system.login;
 
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
@@ -35,7 +35,7 @@ import java.util.UUID;
 public class DingLoginController extends BaseController {
 
     @Autowired
-    DingConfig dingConfig;
+    private DingConfig dingConfig;
 
 
     @GetMapping("/ddLogin")

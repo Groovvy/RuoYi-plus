@@ -22,26 +22,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+
 /**
  * @author wanghuaan
- * @date 2020/5/13
+ * @date 2020/8/12
  **/
-public class DingRealm extends AuthorizingRealm {
+public class QQRealm extends AuthorizingRealm {
 
-    private static final Logger log = LoggerFactory.getLogger(UserRealm.class);
+    private static final Logger log = LoggerFactory.getLogger(QQRealm.class);
 
     @Autowired
     private ISysUserService sysUserService;
 
     @Override
     public String getName() {
-        return LoginType.DING_LOGIN.getType();
+        return LoginType.QQ_LOGIN.getType();
     }
 
     @Override
     public boolean supports(AuthenticationToken token) {
         if (token instanceof UserToken) {
-            return ((UserToken) token).getLoginType() == LoginType.DING_LOGIN;
+            return ((UserToken) token).getLoginType() == LoginType.QQ_LOGIN;
         } else {
             return false;
         }
@@ -55,16 +57,20 @@ public class DingRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
 
-        log.info("---------------- 钉钉登录 ----------------------");
+        log.info("---------------- qq登录 ----------------------");
         UserToken token = (UserToken) authenticationToken;
         String nickName = token.getUsername();
         String openid = token.getCode();
+        Map<String,Object> userInfo = token.getMap();
 
 
         if(UserConstants.USER_OPENID_UNIQUE.equals(sysUserService.checkOpenIdUnique(getName(),openid))){
             SysUser defalutUser = new SysUser();
             defalutUser.setLoginName(nickName);
+            defalutUser.setQqOpenId(openid);
+            defalutUser.setAvatar(String.valueOf(userInfo.get("figureurl_qq")));
             defalutUser.setUserName(nickName);
+            defalutUser.setSex(String.valueOf(userInfo.get("gender_type")));
             //角色
             Long[] roleIds = {Long.parseLong("2")};
             defalutUser.setRoleIds(roleIds);
@@ -74,14 +80,14 @@ public class DingRealm extends AuthorizingRealm {
             defalutUser.setStatus("0");
             //部门
             defalutUser.setDeptId(Long.parseLong("103"));
-            defalutUser.setSex("0");
-            defalutUser.setDdOpenId(openid);
+
             sysUserService.insertUser(defalutUser);
         }
 
         SysUser user = sysUserService.selectUserByOpenId(getName(),openid);
-        if(!user.getLoginName().equals(nickName)){
+        if(!user.getLoginName().equals(nickName) || !user.getAvatar().equals(String.valueOf(userInfo.get("figureurl_qq")))){
             user.setUserName(nickName);
+            user.setAvatar(String.valueOf(userInfo.get("figureurl_qq")));
             sysUserService.updateUserInfo(user);
         }
 

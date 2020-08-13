@@ -179,6 +179,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="remark != null">remark = #{remark},</if>
 			<if test="ddOpenId != null and ddOpenId != ''">dd_openid = #{ddOpenId},</if>
 			<if test="wxOpenId != null and wxOpenId != ''">wx_openid = #{wxOpenId},</if>
+			<if test="qqOpenId != null and qqOpenId != ''">qq_openid = #{qqOpenId},</if>
  			update_time = sysdate()
  		</set>
  		where user_id = #{userId}
@@ -201,6 +202,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="remark != null and remark != ''">remark,</if>
 			<if test="ddOpenId != null and ddOpenId != ''">dd_openid,</if>
 			<if test="wxOpenId != null and wxOpenId != ''">wx_openid,</if>
+			<if test="qqOpenId != null and qqOpenId != ''">qq_openid,</if>
  			create_time
  		)values(
  			<if test="userId != null and userId != ''">#{userId},</if>
@@ -218,6 +220,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="remark != null and remark != ''">#{remark},</if>
 			<if test="ddOpenId != null and ddOpenId != ''">#{ddOpenId},</if>
 			<if test="wxOpenId != null and wxOpenId != ''">#{wxOpenId},</if>
+			<if test="qqOpenId != null and qqOpenId != ''">#{qqOpenId},</if>
  			sysdate()
  		)
 	</insert>
@@ -227,6 +230,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where
 		<if test="arg0 == 'wechat_login_realm'">wx_openid = #{arg1}</if>
 		<if test="arg0 == 'ding_login_realm'">dd_openid = #{arg1}</if>
+		<if test="arg0 == 'qq_login_realm'">qq_openid = #{arg1}</if>
 	</select>
 
 	<select id="selectUserByOpenId" parameterType="String" resultMap="SysUserResult">
@@ -234,6 +238,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		where
 		<if test="arg0 == 'wechat_login_realm'">wx_openid = #{arg1}</if>
 		<if test="arg0 == 'ding_login_realm'">dd_openid = #{arg1}</if>
+		<if test="arg0 == 'qq_login_realm'">qq_openid = #{arg1}</if>
 	</select>
 
 </mapper> 

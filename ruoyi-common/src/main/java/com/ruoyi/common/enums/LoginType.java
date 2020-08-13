@@ -14,6 +14,8 @@ public enum LoginType {
     USER_PHONE("user_phone_realm"),
     //钉钉免密登录
     DING_LOGIN("ding_login_realm"),
+    //钉钉免密登录
+    QQ_LOGIN("qq_login_realm"),
     //微信免密登录
     WECHAT_LOGIN("wechat_login_realm");
 
